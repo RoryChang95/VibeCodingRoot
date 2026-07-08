@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>程式小白 Vibe Coding 課程入口包</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+      background: #f6f7fb;
+      color: #222;
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, #6c63ff, #ff7eb3);
+      color: white;
+      padding: 56px 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 16px;
+      font-size: 36px;
+    }
+
+    header p {
+      font-size: 18px;
+      margin: 0 0 28px;
+    }
+
+    .buttons a {
+      display: inline-block;
+      margin: 8px;
+      padding: 12px 22px;
+      background: white;
+      color: #6c63ff;
+      text-decoration: none;
+      border-radius: 999px;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    section {
+      background: white;
+      margin-bottom: 24px;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #4b46c8;
+    }
+
+    .timeline {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .timeline th,
+    .timeline td {
+      border-bottom: 1px solid #e5e5e5;
+      padding: 12px;
+      text-align: left;
+    }
+
+    .prompt-box {
+      background: #f3f4ff;
+      border-left: 5px solid #6c63ff;
+      padding: 16px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 15px;
+    }
+
+    details {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+      color: #333;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px 20px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>程式小白 Vibe Coding 課程入口包</h1>
+    <p>用 ChatGPT ＋ CodePen 完成你的第一個互動網頁作品</p>
+
+    <div class="buttons">
+      <a href="https://chat.openai.com/" target="_blank">開啟 ChatGPT</a>
+      <a href="https://codepen.io/pen/" target="_blank">開啟 CodePen</a>
+     <!-- <a href="#" target="_blank">填寫課後問卷</a> -->
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>一、上課前請先準備</h2>
+      <ul>
+        <li>開啟 YouTube 直播頁面</li>
+        <li>開啟 ChatGPT</li>
+        <li>開啟 CodePen</li>
+        <li>保留本頁面，等等會複製 Prompt 與備份程式碼</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>二、今日課程流程</h2>
+      <table class="timeline">
+        <tr>
+          <th>項次</th>
+          <th>內容</th>
+        </tr>
+        <tr>
+          <td>一</td>
+          <td>開場與學習心態建立</td>
+        </tr>
+        <tr>
+          <td>二</td>
+          <td>什麼是程式？什麼是 Vibe Coding？</td>
+        </tr>
+        <tr>
+          <td>三</td>
+          <td>認識 HTML、CSS、JavaScript</td>
+        </tr>
+        <tr>
+          <td>四</td>
+          <td>完成「今日運勢盲盒機」互動作品</td>
+        </tr>
+        <tr>
+          <td>五</td>
+          <td>Vibe Coding 的優勢與限制</td>
+        </tr>
+        <tr>
+          <td>六</td>
+          <td>討論與學習路徑說明</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>三、核心 Prompt</h2>
+
+      <h3>Prompt 1：產生 HTML 與 CSS</h3>
+      <div class="prompt-box">
+我是一位完全沒有程式基礎的初學者，目前正在使用 CodePen。
+
+請幫我製作一個網頁小作品，主題是「Vibe Check！今日運勢盲盒機」。
+
+需求如下：
+1. 使用 HTML、CSS、JavaScript。
+2. 這一步只需要完成 HTML 和 CSS，不需要 JavaScript。
+3. 畫面要包含：
+   - 標題：「Vibe Check！今日運勢」
+   - 一段文字：「點擊下方按鈕查看今日 Vibe」
+   - 一個按鈕：「查看今日運勢」
+4. CSS 請做出漂亮的漸層背景、置中的卡片、圓角按鈕。
+5. 請分別提供 HTML 和 CSS 程式碼。
+6. 請在程式碼中加入適合初學者理解的中文註解。
+      </div>
+
+      <h3>Prompt 2：加入 JavaScript</h3>
+      <div class="prompt-box">
+很好，現在請幫我加入 JavaScript 互動功能。
+
+需求如下：
+1. 當使用者點擊按鈕時，隨機顯示一個今日運勢。
+2. 運勢內容共有五個：
+   - 程式碼一發就過
+   - 發現神級 Bug，但也順利修掉
+   - 咖啡差點打翻在鍵盤上
+   - 今日大吉，適合寫 Code
+   - 突然看懂複雜語法
+3. 每次點擊按鈕時，文字框內容都要更新。
+4. 請提供 JavaScript 程式碼。
+5. 請用中文註解說明每一段程式在做什麼。
+6. 請確保程式可以直接貼到 CodePen 的 JavaScript 區塊執行。
+      </div>
+    </section>
+
+    <section>
+      <h2>四、備份程式碼</h2>
+
+      <details>
+        <summary>HTML 備份程式碼</summary>
+        <pre><code>&lt;div class="card"&gt;
+  &lt;h1&gt;Vibe Check！今日運勢&lt;/h1&gt;
+  &lt;p id="fortuneText"&gt;點擊下方按鈕查看今日 Vibe&lt;/p&gt;
+  &lt;button id="fortuneBtn"&gt;查看今日運勢&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+      </details>
+
+      <details>
+        <summary>CSS 備份程式碼</summary>
+        <pre><code>body {
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  font-family: "Microsoft JhengHei", sans-serif;
+}
+
+.card {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+button {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 999px;
+  background: #6c63ff;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}</code></pre>
+      </details>
+
+      <details>
+        <summary>JavaScript 備份程式碼</summary>
+        <pre><code>const fortuneText = document.getElementById("fortuneText");
+const fortuneBtn = document.getElementById("fortuneBtn");
+
+const fortunes = [
+  "程式碼一發就過",
+  "發現神級 Bug，但也順利修掉",
+  "咖啡差點打翻在鍵盤上",
+  "今日大吉，適合寫 Code",
+  "突然看懂複雜語法"
+];
+
+fortuneBtn.addEventListener("click", function () {
+  const randomIndex = Math.floor(Math.random() * fortunes.length);
+  fortuneText.textContent = fortunes[randomIndex];
+});</code></pre>
+      </details>
+    </section>
+
+    <section>
+      <h2>五、常見問題</h2>
+
+      <details>
+        <summary>我跟不上老師操作怎麼辦？</summary>
+        <p>不用緊張，直播結束後可以觀看回放，也可以使用本頁提供的備份程式碼完成作品。</p>
+      </details>
+
+      <details>
+        <summary>CodePen 一定要註冊嗎？</summary>
+        <p>短時間體驗可以先不用註冊，但若想保存作品，建議註冊免費帳號。</p>
+      </details>
+
+      <details>
+        <summary>JavaScript 貼上後沒有反應怎麼辦？</summary>
+        <p>請先確認 HTML 裡面的 id 名稱是否和 JavaScript 中使用的名稱一致，例如 fortuneText 和 fortuneBtn。</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>六、課後資源與下一步</h2>
+      <p>完成今天的作品後，歡迎填寫課後問卷，領取延伸練習與學習資源。</p>
+      <div class="buttons">
+       <!-- <a href="#" target="_blank">填寫課後問卷</a>-->
+        <a href="https://www.ispan.com.tw/" target="_blank">了解後續課程</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>程式小白 Vibe Coding 學程式｜AI 輔助網頁入門體驗課</p>
+  </footer>
+</body>
+</html>
