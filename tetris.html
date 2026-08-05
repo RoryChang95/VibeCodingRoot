@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 教練俄羅斯方塊 - 簡約舒適版</title>
+    <style>
+        :root {
+            /* 調整為舒適且對比清晰的色彩配置 */
+            --bg-color: #eef2f5;          /* 輕盈舒適的灰藍背景 */
+            --panel-bg: #ffffff;         /* 面板白底 */
+            --box-bg: #f7f9fa;           /* 區塊淺灰底 */
+            --text-main: #2c3e50;        /* 深藍灰文字，對比清晰但不死黑 */
+            --text-muted: #6a7b8c;       /* 說明文字灰 */
+            --border-color: #d1d9e0;     /* 明確的邊框線條 */
+            
+            --accent-color: #34495e;      /* 主要按鈕深色 */
+            --accent-hover: #2c3e50;
+            --score-color: #d35400;       /* 醒目的橘紅色分數 */
+            --coach-color: #27ae60;       /* 清楚的綠色教練提示 */
+            
+            --mobile-btn-bg: #e2e8f0;    /* 手機按鍵背景 */
+            --mobile-btn-active: #cbd5e1;
+            
+            --game-canvas-bg: #ffffff;   /* 遊戲畫布背景 */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            touch-action: manipulation;
+        }
+
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: center;
+            color: var(--text-main);
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            max-width: 100%;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 主遊戲畫布 */
+        #tetris {
+            background-color: var(--game-canvas-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            aspect-ratio: 1 / 2;
+            display: block;
+        }
+
+        #ui-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 200px;
+        }
+
+        .box {
+            background: var(--box-bg);
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .box div:first-child {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        #score {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--score-color);
+        }
+
+        /* 下一個方塊預告畫布 */
+        #next-canvas {
+            background-color: var(--game-canvas-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #coach-message {
+            color: var(--coach-color);
+            font-weight: bold;
+            min-height: 42px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        button#start-btn {
+            padding: 12px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        button#start-btn:hover {
+            background: var(--accent-hover);
+        }
+        button#start-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .controls {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            border: none;
+            background: transparent;
+            padding: 5px;
+        }
+        .controls strong {
+            color: var(--text-main);
+        }
+
+        #mobile-controls { display: none; }
+
+        @media (max-width: 650px) {
+            body { padding: 10px; }
+            h1 { font-size: 20px; margin-bottom: 12px; }
+
+            #game-container {
+                flex-direction: column;
+                align-items: center;
+                padding: 15px;
+                gap: 12px;
+            }
+
+            #tetris { max-width: 280px; }
+
+            #ui-panel {
+                width: 100%;
+                max-width: 280px;
+                gap: 10px;
+            }
+
+            .controls { display: none; }
+            
+            #mobile-controls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: 5px;
+                gap: 8px;
+            }
+            .ctrl-btn {
+                flex: 1 1 30%;
+                background: var(--mobile-btn-bg);
+                color: var(--text-main);
+                font-size: 20px;
+                padding: 12px 0;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+            }
+            .ctrl-btn:active {
+                background: var(--mobile-btn-active);
+            }
+            #btn-rotate, #btn-drop {
+                flex: 1 1 48%;
+            }
+            .btn-danger {
+                background: #fadbd8;
+                color: #78281f;
+            }
+            .btn-danger:active {
+                background: #f1948a;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧠 AI 教練俄羅斯方塊</h1>
+    
+    <audio id="bgm" loop="">
+        <source src="https://archive.org/download/FluffingADuck/Fluffing%20a%20Duck.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="game-container">
+        <!-- 主畫布 -->
+        <canvas id="tetris" width="300" height="600"></canvas>
+        
+        <div id="ui-panel">
+            <!-- 分數 -->
+            <div class="box">
+                <div>目前分數</div>
+                <div id="score">0</div>
+            </div>
+
+            <!-- 下一個方塊預告 -->
+            <div class="box">
+                <div>下一個方塊</div>
+                <canvas id="next-canvas" width="100" height="100"></canvas>
+            </div>
+
+            <!-- AI 教練建議 -->
+            <div class="box">
+                <div>AI 教練建議 💡</div>
+                <div id="coach-message">點擊按鈕開始...</div>
+            </div>
+
+            <button id="start-btn">開始遊戲</button>
+            
+            <div class="box controls">
+                <strong>鍵盤操作：</strong><br>
+                ⬅️ ➡️ : 左右移動<br>
+                ⬆️ : 旋轉方向<br>
+                ⬇️ : 加速落下<br>
+                空白鍵 : 瞬間落下
+            </div>
+            
+            <!-- 手機虛擬按鍵 -->
+            <div id="mobile-controls">
+                <button class="ctrl-btn" id="btn-left">⬅️</button>
+                <button class="ctrl-btn" id="btn-down">⬇️</button>
+                <button class="ctrl-btn" id="btn-right">➡️</button>
+                <button class="ctrl-btn" id="btn-rotate">↻</button>
+                <button class="ctrl-btn btn-danger" id="btn-drop">⏬</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. 音效引擎
+        // ==========================================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') return; 
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'drop') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'clear') {
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+                oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'move') {
+                oscillator.type = 'triangle';
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'rotate') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.05);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.05);
+            }
+        }
+
+        // ==========================================
+        // 2. 遊戲主邏輯
+        // ==========================================
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        const gridUnit = 30;
+        context.scale(gridUnit, gridUnit);
+
+        // 預告畫布
+        const nextCanvas = document.getElementById('next-canvas');
+        const nextContext = nextCanvas.getContext('2d');
+        nextContext.scale(25, 25); // 預告區域縮放
+
+        const bgm = document.getElementById('bgm');
+        const scoreElement = document.getElementById('score');
+        const coachMessage = document.getElementById('coach-message');
+        
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        let score = 0;
+        let gameBoard = createMatrix(10, 20);
+        let animationId = null;
+
+        const pieces = 'ILJOTSZ';
+        let nextPieceType = ''; // 儲存下一個方塊類型
+
+        // 對比度明確、舒適清晰的色系
+        const colors = [
+            null,
+            '#e74c3c', // 鮮紅 (I)
+            '#2980b9', // 寶藍 (L)
+            '#f39c12', // 亮橘 (J)
+            '#8e44ad', // 亮紫 (O)
+            '#27ae60', // 翡翠綠 (T)
+            '#d35400', // 深橘紅 (S)
+            '#16a085'  // 青綠 (Z)
+        ];
+
+        function createPiece(type) {
+            switch (type) {
+                case 'I': return [[0,1,0,0], [0,1,0,0], [0,1,0,0], [0,1,0,0]];
+                case 'L': return [[0,2,0], [0,2,0], [0,2,2]];
+                case 'J': return [[0,3,0], [0,3,0], [3,3,0]];
+                case 'O': return [[4,4], [4,4]];
+                case 'T': return [[0,0,0], [5,5,5], [0,5,0]];
+                case 'S': return [[0,6,6], [6,6,0], [0,0,0]];
+                case 'Z': return [[7,7,0], [0,7,7], [0,0,0]];
+            }
+        }
+
+        const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) matrix.push(new Array(w).fill(0));
+            return matrix;
+        }
+
+        // 通用繪製矩陣函式 (支援主畫布與預告畫布)
+        function drawMatrixOnCtx(ctx, matrix, offset, alpha = 1) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        ctx.fillStyle = colors[value];
+                        ctx.globalAlpha = alpha;
+                        ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
+                        
+                        ctx.globalAlpha = 1;
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 0.08;
+                        ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        // 繪製背景線
+        function drawBackground() {
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, canvas.width / gridUnit, canvas.height / gridUnit);
+
+            context.strokeStyle = '#f0f3f5';
+            context.lineWidth = 0.02;
+            for (let x = 0; x <= 10; x++) {
+                context.beginPath(); context.moveTo(x, 0); context.lineTo(x, 20); context.stroke();
+            }
+            for (let y = 0; y <= 20; y++) {
+                context.beginPath(); context.moveTo(0, y); context.lineTo(10, y); context.stroke();
+            }
+        }
+
+        // 繪製預告區域
+        function drawNextPiece() {
+            nextContext.fillStyle = '#ffffff';
+            nextContext.fillRect(0, 0, 4, 4);
+
+            if (nextPieceType) {
+                const matrix = createPiece(nextPieceType);
+                // 計算居中偏移量
+                const offsetX = (4 - matrix[0].length) / 2;
+                const offsetY = (4 - matrix.length) / 2;
+                drawMatrixOnCtx(nextContext, matrix, {x: offsetX, y: offsetY});
+            }
+        }
+
+        function collide(board, obj) {
+            const m = obj.matrix;
+            const o = obj.pos;
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function merge(board, obj) {
+            obj.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        board[y + obj.pos.y][x + obj.pos.x] = value;
+                    }
+                });
+            });
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) matrix.forEach(row => row.reverse());
+            else matrix.reverse();
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(gameBoard, player)) {
+                player.pos.y--;
+                merge(gameBoard, player);
+                playSound('drop');
+                playerReset();
+                sweep();
+            }
+            dropCounter = 0;
+        }
+
+        function playerMove(offset) {
+            player.pos.x += offset;
+            if (collide(gameBoard, player)) {
+                player.pos.x -= offset;
+            } else {
+                playSound('move');
+            }
+            updateCoach();
+        }
+
+        function playerRotate() {
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, 1);
+            while (collide(gameBoard, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -1);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+            playSound('rotate');
+            updateCoach();
+        }
+
+        function playerHardDrop() {
+            player.pos = getGhostPos();
+            playerDrop();
+        }
+
+        function playerReset() {
+            // 如果還沒有下一個方塊，先抽一個
+            if (!nextPieceType) {
+                nextPieceType = pieces[Math.floor(Math.random() * pieces.length)];
+            }
+
+            // 當前方塊設為預告方塊，並抽下一個預告方塊
+            player.matrix = createPiece(nextPieceType);
+            nextPieceType = pieces[Math.floor(Math.random() * pieces.length)];
+            drawNextPiece(); // 更新預告畫面
+
+            player.pos.y = 0;
+            player.pos.x = Math.floor(gameBoard[0].length / 2) - Math.floor(player.matrix[0].length / 2);
+
+            if (collide(gameBoard, player)) {
+                gameBoard.forEach(row => row.fill(0));
+                score = 0;
+                updateScore();
+            }
+            updateCoach();
+        }
+
+        function sweep() {
+            let rowCount = 1;
+            let cleared = false;
+            outer: for (let y = gameBoard.length - 1; y >= 0; --y) {
+                for (let x = 0; x < gameBoard[y].length; ++x) {
+                    if (gameBoard[y][x] === 0) continue outer;
+                }
+                const row = gameBoard.splice(y, 1)[0].fill(0);
+                gameBoard.unshift(row);
+                ++y;
+                score += rowCount * 100;
+                rowCount *= 2;
+                cleared = true;
+            }
+            if (cleared) playSound('clear');
+            updateScore();
+        }
+
+        function getGhostPos() {
+            const ghost = { matrix: player.matrix, pos: { x: player.pos.x, y: player.pos.y } };
+            while (!collide(gameBoard, ghost)) { ghost.pos.y++; }
+            ghost.pos.y--;
+            return ghost.pos;
+        }
+
+        // 全中文 AI 教練邏輯
+        function updateCoach() {
+            let bestRotations = 0;
+            let bestX = player.pos.x;
+            let maxDepth = -1;
+            const origMatrix = JSON.parse(JSON.stringify(player.matrix));
+            
+            for (let r = 0; r < 4; r++) {
+                let tempPlayer = { matrix: JSON.parse(JSON.stringify(player.matrix)), pos: {x: 0, y: 0} };
+                if (r > 0) rotate(tempPlayer.matrix, 1);
+                
+                for (let x = -2; x < gameBoard[0].length + 2; x++) {
+                    tempPlayer.pos.x = x;
+                    tempPlayer.pos.y = 0;
+                    if (!collide(gameBoard, tempPlayer)) {
+                        while (!collide(gameBoard, tempPlayer)) { tempPlayer.pos.y++; }
+                        tempPlayer.pos.y--;
+                        
+                        if (tempPlayer.pos.y > maxDepth) {
+                            maxDepth = tempPlayer.pos.y;
+                            bestX = x;
+                            bestRotations = r;
+                        }
+                    }
+                }
+                player.matrix = tempPlayer.matrix; 
+            }
+            player.matrix = origMatrix; 
+
+            let diffX = bestX - player.pos.x;
+            let moveText = diffX === 0 ? "保持當前直列" : (diffX > 0 ? `向右移動 ${diffX} 格` : `向左移動 ${Math.abs(diffX)} 格`);
+            let rotText = bestRotations > 0 ? `，旋轉 ${bestRotations} 次` : "，無需旋轉";
+            coachMessage.innerHTML = `${moveText}<br>${rotText}`;
+        }
+
+        function draw() {
+            drawBackground();
+            drawMatrixOnCtx(context, gameBoard, {x: 0, y: 0});
+            
+            const ghostPos = getGhostPos();
+            drawMatrixOnCtx(context, player.matrix, ghostPos, 0.2); 
+            drawMatrixOnCtx(context, player.matrix, player.pos);
+        }
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) playerDrop();
+            draw();
+            animationId = requestAnimationFrame(update);
+        }
+
+        function updateScore() { scoreElement.innerText = score; }
+
+        // ==========================================
+        // 3. 事件監聽 (鍵盤與手機觸控)
+        // ==========================================
+
+        document.addEventListener('keydown', event => {
+            if([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+                event.preventDefault();
+            }
+            if (event.keyCode === 37) playerMove(-1);        
+            else if (event.keyCode === 39) playerMove(1);   
+            else if (event.keyCode === 40) playerDrop();    
+            else if (event.keyCode === 38) playerRotate();  
+            else if (event.keyCode === 32) playerHardDrop();
+        });
+
+        function bindTouch(id, action) {
+            const btn = document.getElementById(id);
+            btn.addEventListener('pointerdown', (e) => {
+                e.preventDefault(); 
+                action();
+            });
+        }
+        
+        bindTouch('btn-left', () => playerMove(-1));
+        bindTouch('btn-right', () => playerMove(1));
+        bindTouch('btn-down', () => playerDrop());
+        bindTouch('btn-rotate', () => playerRotate());
+        bindTouch('btn-drop', () => playerHardDrop());
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            bgm.play().catch(() => console.log('瀏覽器阻擋自動播放'));
+            
+            if (!animationId) {
+                playerReset();
+                updateScore();
+                update();
+            }
+            document.getElementById('start-btn').innerText = "遊戲進行中";
+            document.getElementById('start-btn').style.opacity = '0.7';
+            document.getElementById('start-btn').style.pointerEvents = 'none';
+        });
+
+        // 初始化預告區域畫面
+        drawNextPiece();
+    </script>
+</body>
+</html>
