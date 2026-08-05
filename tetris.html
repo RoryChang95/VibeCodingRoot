@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI 教練俄羅斯方塊 - 簡約舒適版</title>
+    <title>AI 教練俄羅斯方塊 - RWD 舒適版</title>
     <style>
         :root {
-            /* 調整為舒適且對比清晰的色彩配置 */
-            --bg-color: #eef2f5;          /* 輕盈舒適的灰藍背景 */
-            --panel-bg: #ffffff;         /* 面板白底 */
-            --box-bg: #f7f9fa;           /* 區塊淺灰底 */
-            --text-main: #2c3e50;        /* 深藍灰文字，對比清晰但不死黑 */
-            --text-muted: #6a7b8c;       /* 說明文字灰 */
-            --border-color: #d1d9e0;     /* 明確的邊框線條 */
+            --bg-color: #eef2f5;          
+            --panel-bg: #ffffff;         
+            --box-bg: #f7f9fa;           
+            --text-main: #2c3e50;        
+            --text-muted: #6a7b8c;       
+            --border-color: #d1d9e0;     
             
-            --accent-color: #34495e;      /* 主要按鈕深色 */
+            --accent-color: #34495e;      
             --accent-hover: #2c3e50;
-            --score-color: #d35400;       /* 醒目的橘紅色分數 */
-            --coach-color: #27ae60;       /* 清楚的綠色教練提示 */
+            --score-color: #d35400;       
+            --coach-color: #27ae60;       
+            --skip-color: #8e44ad;        
             
-            --mobile-btn-bg: #e2e8f0;    /* 手機按鍵背景 */
+            --mobile-btn-bg: #e2e8f0;    
             --mobile-btn-active: #cbd5e1;
-            
-            --game-canvas-bg: #ffffff;   /* 遊戲畫布背景 */
+            --game-canvas-bg: #ffffff;   
         }
 
         body {
@@ -32,71 +31,75 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
+            box-sizing: border-box;
             touch-action: manipulation;
         }
 
         h1 {
-            margin: 0 0 20px 0;
-            font-size: 24px;
+            margin: 0 0 12px 0;
+            font-size: clamp(18px, 4vw, 24px); /* 動態字體大小 */
             font-weight: 600;
-            letter-spacing: 1px;
             text-align: center;
             color: var(--text-main);
         }
         
         #game-container {
             display: flex;
-            flex-direction: row;
+            flex-direction: row; /* 電腦版左右排列 */
             gap: 20px;
             background: var(--panel-bg);
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            max-width: 100%;
             border: 1px solid var(--border-color);
+            align-items: stretch;
+            max-width: 95vw;
         }
 
-        /* 主遊戲畫布 */
+        /* 主遊戲畫布：電腦版大小適中舒適 */
         #tetris {
             background-color: var(--game-canvas-bg);
             border: 2px solid var(--border-color);
             border-radius: 8px;
-            width: 100%;
-            max-width: 300px;
+            width: clamp(220px, 28vw, 300px); /* 響應式寬度，隨螢幕放縮 */
             height: auto;
             aspect-ratio: 1 / 2;
             display: block;
         }
 
+        /* UI 面板：電腦版維持直立單欄、大小舒適 */
         #ui-panel {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            width: 200px;
+            width: clamp(180px, 22vw, 220px);
+            justify-content: space-between;
         }
 
         .box {
             background: var(--box-bg);
-            padding: 12px 15px;
+            padding: 10px 12px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
         }
         .box div:first-child {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             color: var(--text-muted);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         #score {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             color: var(--score-color);
         }
 
-        /* 下一個方塊預告畫布 */
+        /* 下一個方塊畫布 */
         #next-canvas {
             background-color: var(--game-canvas-bg);
             border: 1px solid var(--border-color);
@@ -108,9 +111,20 @@
         #coach-message {
             color: var(--coach-color);
             font-weight: bold;
-            min-height: 42px;
-            line-height: 1.5;
-            font-size: 14px;
+            min-height: 38px;
+            line-height: 1.4;
+            font-size: 13px;
+        }
+
+        #skip-count {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--skip-color);
+        }
+        .skip-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
         
         button#start-btn {
@@ -119,84 +133,85 @@
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        button#start-btn:hover {
-            background: var(--accent-hover);
-        }
-        button#start-btn:active {
-            transform: translateY(1px);
-        }
+        button#start-btn:hover { background: var(--accent-hover); }
         
         .controls {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
-            line-height: 1.8;
+            line-height: 1.6;
             border: none;
             background: transparent;
-            padding: 5px;
+            padding: 0;
         }
-        .controls strong {
-            color: var(--text-main);
-        }
+        .controls strong { color: var(--text-main); }
 
         #mobile-controls { display: none; }
 
+        /* ==========================================
+           RWD 手機/平板斷點（垂直畫面自動轉換）
+           ========================================== */
         @media (max-width: 650px) {
-            body { padding: 10px; }
-            h1 { font-size: 20px; margin-bottom: 12px; }
+            body { 
+                justify-content: flex-start;
+                padding: 10px 5px; 
+            }
+            h1 { margin-bottom: 8px; }
 
             #game-container {
-                flex-direction: column;
+                flex-direction: column; /* 手機改上下排列 */
                 align-items: center;
-                padding: 15px;
-                gap: 12px;
+                padding: 12px;
+                gap: 10px;
+                width: 90vw;
             }
 
-            #tetris { max-width: 280px; }
+            #tetris {
+                width: 100%;
+                max-width: 240px; /* 手機限制最大高度避免超出畫面 */
+            }
 
+            /* 手機版：面板改為 Grid 雙欄，避免頁面拉得太長 */
             #ui-panel {
                 width: 100%;
                 max-width: 280px;
-                gap: 10px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
 
-            .controls { display: none; }
+            .box { padding: 8px; }
+            .box-next { text-align: center; }
+            .full-width { grid-column: span 2; }
+            
+            .controls { display: none; } /* 手機隱藏鍵盤說明 */
             
             #mobile-controls {
+                grid-column: span 2;
                 display: flex;
                 flex-wrap: wrap;
                 justify-content: space-between;
                 width: 100%;
-                margin-top: 5px;
-                gap: 8px;
+                gap: 6px;
             }
             .ctrl-btn {
                 flex: 1 1 30%;
                 background: var(--mobile-btn-bg);
                 color: var(--text-main);
-                font-size: 20px;
-                padding: 12px 0;
+                font-size: 18px;
+                padding: 10px 0;
                 border-radius: 8px;
                 border: 1px solid var(--border-color);
             }
-            .ctrl-btn:active {
-                background: var(--mobile-btn-active);
-            }
-            #btn-rotate, #btn-drop {
-                flex: 1 1 48%;
-            }
-            .btn-danger {
-                background: #fadbd8;
-                color: #78281f;
-            }
-            .btn-danger:active {
-                background: #f1948a;
-            }
+            .ctrl-btn:active { background: var(--mobile-btn-active); }
+            #btn-rotate, #btn-drop { flex: 1 1 48%; }
+            .btn-skip { background: #f3e5f5; color: #6a1b9a; }
+            .btn-danger { background: #fadbd8; color: #78281f; }
         }
     </style>
 </head>
@@ -220,25 +235,31 @@
             </div>
 
             <!-- 下一個方塊預告 -->
-            <div class="box">
+            <div class="box box-next">
                 <div>下一個方塊</div>
-                <canvas id="next-canvas" width="100" height="100"></canvas>
+                <canvas id="next-canvas" width="70" height="70"></canvas>
             </div>
 
             <!-- AI 教練建議 -->
-            <div class="box">
+            <div class="box full-width">
                 <div>AI 教練建議 💡</div>
                 <div id="coach-message">點擊按鈕開始...</div>
             </div>
 
-            <button id="start-btn">開始遊戲</button>
+            <!-- 略過機會 -->
+            <div class="box full-width">
+                <div>略過機會 ⏭️</div>
+                <div id="skip-count">0 次</div>
+                <div class="skip-hint">按 C 鍵啟動 (每 5000 分 +1)</div>
+            </div>
+
+            <button id="start-btn" class="full-width">開始遊戲</button>
             
-            <div class="box controls">
+            <div class="box controls full-width">
                 <strong>鍵盤操作：</strong><br>
                 ⬅️ ➡️ : 左右移動<br>
-                ⬆️ : 旋轉方向<br>
-                ⬇️ : 加速落下<br>
-                空白鍵 : 瞬間落下
+                ⬆️ : 旋轉方向 | ⬇️ : 加速落下<br>
+                空白鍵 : 瞬間落下 | <strong>C 鍵 : 略過</strong>
             </div>
             
             <!-- 手機虛擬按鍵 -->
@@ -247,6 +268,7 @@
                 <button class="ctrl-btn" id="btn-down">⬇️</button>
                 <button class="ctrl-btn" id="btn-right">➡️</button>
                 <button class="ctrl-btn" id="btn-rotate">↻</button>
+                <button class="ctrl-btn btn-skip" id="btn-skip">⏭️ C</button>
                 <button class="ctrl-btn btn-danger" id="btn-drop">⏬</button>
             </div>
         </div>
@@ -306,26 +328,27 @@
         const gridUnit = 30;
         context.scale(gridUnit, gridUnit);
 
-        // 預告畫布
         const nextCanvas = document.getElementById('next-canvas');
         const nextContext = nextCanvas.getContext('2d');
-        nextContext.scale(25, 25); // 預告區域縮放
+        nextContext.scale(17.5, 17.5); 
 
         const bgm = document.getElementById('bgm');
         const scoreElement = document.getElementById('score');
         const coachMessage = document.getElementById('coach-message');
+        const skipCountElement = document.getElementById('skip-count');
         
         let dropCounter = 0;
         let dropInterval = 1000;
         let lastTime = 0;
         let score = 0;
+        let skipChances = 0;
+        let lastMilestoneScore = 0;
         let gameBoard = createMatrix(10, 20);
         let animationId = null;
 
         const pieces = 'ILJOTSZ';
-        let nextPieceType = ''; // 儲存下一個方塊類型
+        let nextPieceType = '';
 
-        // 對比度明確、舒適清晰的色系
         const colors = [
             null,
             '#e74c3c', // 鮮紅 (I)
@@ -357,7 +380,6 @@
             return matrix;
         }
 
-        // 通用繪製矩陣函式 (支援主畫布與預告畫布)
         function drawMatrixOnCtx(ctx, matrix, offset, alpha = 1) {
             matrix.forEach((row, y) => {
                 row.forEach((value, x) => {
@@ -375,7 +397,6 @@
             });
         }
 
-        // 繪製背景線
         function drawBackground() {
             context.fillStyle = '#ffffff';
             context.fillRect(0, 0, canvas.width / gridUnit, canvas.height / gridUnit);
@@ -390,14 +411,12 @@
             }
         }
 
-        // 繪製預告區域
         function drawNextPiece() {
             nextContext.fillStyle = '#ffffff';
             nextContext.fillRect(0, 0, 4, 4);
 
             if (nextPieceType) {
                 const matrix = createPiece(nextPieceType);
-                // 計算居中偏移量
                 const offsetX = (4 - matrix[0].length) / 2;
                 const offsetY = (4 - matrix.length) / 2;
                 drawMatrixOnCtx(nextContext, matrix, {x: offsetX, y: offsetY});
@@ -481,16 +500,23 @@
             playerDrop();
         }
 
+        function playerSkip() {
+            if (skipChances > 0) {
+                skipChances--;
+                updateSkipUI();
+                playSound('rotate');
+                playerReset();
+            }
+        }
+
         function playerReset() {
-            // 如果還沒有下一個方塊，先抽一個
             if (!nextPieceType) {
                 nextPieceType = pieces[Math.floor(Math.random() * pieces.length)];
             }
 
-            // 當前方塊設為預告方塊，並抽下一個預告方塊
             player.matrix = createPiece(nextPieceType);
             nextPieceType = pieces[Math.floor(Math.random() * pieces.length)];
-            drawNextPiece(); // 更新預告畫面
+            drawNextPiece();
 
             player.pos.y = 0;
             player.pos.x = Math.floor(gameBoard[0].length / 2) - Math.floor(player.matrix[0].length / 2);
@@ -498,6 +524,9 @@
             if (collide(gameBoard, player)) {
                 gameBoard.forEach(row => row.fill(0));
                 score = 0;
+                skipChances = 0;
+                lastMilestoneScore = 0;
+                updateSkipUI();
                 updateScore();
             }
             updateCoach();
@@ -518,6 +547,16 @@
                 cleared = true;
             }
             if (cleared) playSound('clear');
+            
+            const currentMilestone = Math.floor(score / 5000);
+            if (currentMilestone > lastMilestoneScore) {
+                const earned = currentMilestone - lastMilestoneScore;
+                skipChances += earned;
+                lastMilestoneScore = currentMilestone;
+                updateSkipUI();
+                playSound('rotate');
+            }
+
             updateScore();
         }
 
@@ -528,7 +567,6 @@
             return ghost.pos;
         }
 
-        // 全中文 AI 教練邏輯
         function updateCoach() {
             let bestRotations = 0;
             let bestX = player.pos.x;
@@ -582,13 +620,14 @@
         }
 
         function updateScore() { scoreElement.innerText = score; }
+        function updateSkipUI() { skipCountElement.innerText = `${skipChances} 次`; }
 
         // ==========================================
-        // 3. 事件監聽 (鍵盤與手機觸控)
+        // 3. 事件監聽
         // ==========================================
 
         document.addEventListener('keydown', event => {
-            if([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+            if([32, 37, 38, 39, 40, 67].indexOf(event.keyCode) > -1) {
                 event.preventDefault();
             }
             if (event.keyCode === 37) playerMove(-1);        
@@ -596,6 +635,7 @@
             else if (event.keyCode === 40) playerDrop();    
             else if (event.keyCode === 38) playerRotate();  
             else if (event.keyCode === 32) playerHardDrop();
+            else if (event.keyCode === 67 || event.key === 'c' || event.key === 'C') playerSkip();
         });
 
         function bindTouch(id, action) {
@@ -611,6 +651,7 @@
         bindTouch('btn-down', () => playerDrop());
         bindTouch('btn-rotate', () => playerRotate());
         bindTouch('btn-drop', () => playerHardDrop());
+        bindTouch('btn-skip', () => playerSkip());
 
         document.getElementById('start-btn').addEventListener('click', () => {
             if (audioCtx.state === 'suspended') {
@@ -621,6 +662,7 @@
             if (!animationId) {
                 playerReset();
                 updateScore();
+                updateSkipUI();
                 update();
             }
             document.getElementById('start-btn').innerText = "遊戲進行中";
@@ -628,7 +670,6 @@
             document.getElementById('start-btn').style.pointerEvents = 'none';
         });
 
-        // 初始化預告區域畫面
         drawNextPiece();
     </script>
 </body>
