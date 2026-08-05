@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI 教練俄羅斯方塊 - RWD 舒適版</title>
+    <title>AI 教練俄羅斯方塊 - 行數加成 COMBO 版</title>
     <style>
         :root {
             --bg-color: #eef2f5;          
@@ -41,7 +41,7 @@
 
         h1 {
             margin: 0 0 12px 0;
-            font-size: clamp(18px, 4vw, 24px); /* 動態字體大小 */
+            font-size: clamp(18px, 4vw, 24px);
             font-weight: 600;
             text-align: center;
             color: var(--text-main);
@@ -49,7 +49,7 @@
         
         #game-container {
             display: flex;
-            flex-direction: row; /* 電腦版左右排列 */
+            flex-direction: row;
             gap: 20px;
             background: var(--panel-bg);
             padding: 20px;
@@ -60,18 +60,16 @@
             max-width: 95vw;
         }
 
-        /* 主遊戲畫布：電腦版大小適中舒適 */
         #tetris {
             background-color: var(--game-canvas-bg);
             border: 2px solid var(--border-color);
             border-radius: 8px;
-            width: clamp(220px, 28vw, 300px); /* 響應式寬度，隨螢幕放縮 */
+            width: clamp(220px, 28vw, 300px);
             height: auto;
             aspect-ratio: 1 / 2;
             display: block;
         }
 
-        /* UI 面板：電腦版維持直立單欄、大小舒適 */
         #ui-panel {
             display: flex;
             flex-direction: column;
@@ -99,7 +97,6 @@
             color: var(--score-color);
         }
 
-        /* 下一個方塊畫布 */
         #next-canvas {
             background-color: var(--game-canvas-bg);
             border: 1px solid var(--border-color);
@@ -125,6 +122,7 @@
             font-size: 11px;
             color: var(--text-muted);
             margin-top: 2px;
+            line-height: 1.3;
         }
         
         button#start-btn {
@@ -153,9 +151,6 @@
 
         #mobile-controls { display: none; }
 
-        /* ==========================================
-           RWD 手機/平板斷點（垂直畫面自動轉換）
-           ========================================== */
         @media (max-width: 650px) {
             body { 
                 justify-content: flex-start;
@@ -164,7 +159,7 @@
             h1 { margin-bottom: 8px; }
 
             #game-container {
-                flex-direction: column; /* 手機改上下排列 */
+                flex-direction: column;
                 align-items: center;
                 padding: 12px;
                 gap: 10px;
@@ -173,10 +168,9 @@
 
             #tetris {
                 width: 100%;
-                max-width: 240px; /* 手機限制最大高度避免超出畫面 */
+                max-width: 240px;
             }
 
-            /* 手機版：面板改為 Grid 雙欄，避免頁面拉得太長 */
             #ui-panel {
                 width: 100%;
                 max-width: 280px;
@@ -189,7 +183,7 @@
             .box-next { text-align: center; }
             .full-width { grid-column: span 2; }
             
-            .controls { display: none; } /* 手機隱藏鍵盤說明 */
+            .controls { display: none; }
             
             #mobile-controls {
                 grid-column: span 2;
@@ -250,7 +244,7 @@
             <div class="box full-width">
                 <div>略過機會 ⏭️</div>
                 <div id="skip-count">0 次</div>
-                <div class="skip-hint">按 C 鍵啟動 (每 5000 分 +1)</div>
+                <div class="skip-hint" id="streak-hint">按 C 鍵啟動<br>(消行累計 COMBO 5 獲得 1 次)</div>
             </div>
 
             <button id="start-btn" class="full-width">開始遊戲</button>
@@ -336,6 +330,7 @@
         const scoreElement = document.getElementById('score');
         const coachMessage = document.getElementById('coach-message');
         const skipCountElement = document.getElementById('skip-count');
+        const streakHintElement = document.getElementById('streak-hint');
         
         let dropCounter = 0;
         let dropInterval = 1000;
@@ -343,6 +338,10 @@
         let score = 0;
         let skipChances = 0;
         let lastMilestoneScore = 0;
+        
+        let isStreakActive = false; // 是否已開啟連擊狀態
+        let comboCount = 0;        // 實際 COMBO 數
+
         let gameBoard = createMatrix(10, 20);
         let animationId = null;
 
@@ -525,6 +524,8 @@
                 gameBoard.forEach(row => row.fill(0));
                 score = 0;
                 skipChances = 0;
+                isStreakActive = false;
+                comboCount = 0;
                 lastMilestoneScore = 0;
                 updateSkipUI();
                 updateScore();
@@ -533,8 +534,10 @@
         }
 
         function sweep() {
-            let rowCount = 1;
-            let cleared = false;
+            let rowCount = 0; // 計算本次消了幾行
+            let gainedScore = 0;
+            let scoreMultiplier = 1;
+
             outer: for (let y = gameBoard.length - 1; y >= 0; --y) {
                 for (let x = 0; x < gameBoard[y].length; ++x) {
                     if (gameBoard[y][x] === 0) continue outer;
@@ -542,12 +545,43 @@
                 const row = gameBoard.splice(y, 1)[0].fill(0);
                 gameBoard.unshift(row);
                 ++y;
-                score += rowCount * 100;
-                rowCount *= 2;
-                cleared = true;
+                
+                rowCount++;
+                gainedScore += scoreMultiplier * 100;
+                scoreMultiplier *= 2;
             }
-            if (cleared) playSound('clear');
             
+            if (rowCount > 0) {
+                playSound('clear');
+                score += gainedScore;
+
+                // 【消行加算 COMBO 邏輯】
+                if (!isStreakActive) {
+                    // 第一次消除：開啟連擊，當次消除 $N$ 行，COMBO 記為 $N - 1$
+                    isStreakActive = true;
+                    comboCount = rowCount - 1;
+                } else {
+                    // 已在連擊中：當次消除 $N$ 行，COMBO 直接加上 $N$
+                    comboCount += rowCount;
+                }
+
+                // 達到或超過 COMBO 5（例如原本 COMBO 2 消 3 行，直接變 5）
+                if (comboCount >= 5) {
+                    skipChances++;
+                    playSound('rotate');
+                    // 達成獎勵後，重置連擊挑戰
+                    isStreakActive = false;
+                    comboCount = 0;
+                }
+                updateSkipUI();
+            } else {
+                // 如果落下的方塊完全沒有消除行，連擊中斷歸零
+                isStreakActive = false;
+                comboCount = 0;
+                updateSkipUI();
+            }
+            
+            // 累計總分每滿 5000 分保底獎勵
             const currentMilestone = Math.floor(score / 5000);
             if (currentMilestone > lastMilestoneScore) {
                 const earned = currentMilestone - lastMilestoneScore;
@@ -620,7 +654,15 @@
         }
 
         function updateScore() { scoreElement.innerText = score; }
-        function updateSkipUI() { skipCountElement.innerText = `${skipChances} 次`; }
+        
+        function updateSkipUI() { 
+            skipCountElement.innerText = `${skipChances} 次`; 
+            if (isStreakActive || comboCount > 0) {
+                streakHintElement.innerHTML = `🔥 連擊：<b>COMBO ${comboCount}</b> / 5<br>(按 C 鍵啟動略過)`;
+            } else {
+                streakHintElement.innerHTML = `按 C 鍵啟動<br>(消行累計 COMBO 5 獲得 1 次)`;
+            }
+        }
 
         // ==========================================
         // 3. 事件監聽
